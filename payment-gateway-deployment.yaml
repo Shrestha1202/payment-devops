@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: payment-gateway
+  namespace: payment-system
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: payment-gateway
+
+  template:
+    metadata:
+      labels:
+        app: payment-gateway
+
+    spec:
+      containers:
+        - name: payment-gateway
+          image: rajatg/payment-gateway:1.0.0
+
+          ports:
+            - containerPort: 8080
+
+          env:
+            - name: PROCESSOR_URL
+              value: "http://payment-processor:8080"
+
+            - name: SERVICE_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: payment-service-token
+                  key: SERVICE_TOKEN
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
